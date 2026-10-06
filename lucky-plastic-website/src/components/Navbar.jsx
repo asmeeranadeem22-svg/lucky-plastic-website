@@ -1,7 +1,10 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { categories } from "./Productsdata";
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import Footer from "./Footer";
 import LoginModal from "./LoginModal";
+import { useCart } from "./Cartcontext";
+
 
 /* =========================================================
    NAVIGATION LINKS
@@ -51,6 +54,9 @@ const BagIcon = () => (
     />
   </svg>
 );
+/* =========================================================
+   PRODUCT SEARCH SUGGESTIONS
+========================================================= */
 
 const SearchIcon = () => (
   <svg
@@ -70,34 +76,128 @@ const SearchIcon = () => (
 /* =========================================================
    SEARCH BOX
 ========================================================= */
+function SearchBox({
+  query,
+  setQuery,
+  onSubmit,
+  className = "",
+}) {
+  const [focused, setFocused] = useState(false);
+  const hideTimer = useRef(null);
 
-function SearchBox({ query, setQuery, onSubmit, className = "" }) {
+  // Productsdata se saare actual product names
+  const allProducts = categories.flatMap((category) =>
+    category.items.map((product) => product.name)
+  );
+
+  // Duplicate names remove
+  const uniqueProducts = [...new Set(allProducts)];
+
+  // Empty ho to first 8 products
+  // Type karo to matching products
+  const filteredSuggestions = uniqueProducts
+    .filter((product) => {
+      if (!query.trim()) return true;
+
+      return product
+        .toLowerCase()
+        .includes(query.toLowerCase());
+    })
+    .slice(0, 8);
+
   return (
-    <form
-      onSubmit={onSubmit}
-      role="search"
-      className={`flex items-center bg-white border border-gray-300 rounded-full pl-6 pr-2 shadow-sm transition-all duration-200 focus-within:border-green-600 focus-within:ring-2 focus-within:ring-green-100 ${className}`}
-    >
-      <input
-        type="search"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="Search for a product or brand"
-        aria-label="Search products"
-        className="flex-1 min-w-0 bg-transparent py-4 text-[15px] text-gray-900 placeholder-gray-400 outline-none"
-      />
+    <div className={`relative ${className}`}>
 
-      <button
-        type="submit"
-        aria-label="Search"
-        className="flex items-center justify-center w-12 h-12 rounded-full text-green-700 hover:bg-green-50 hover:text-green-800 transition"
+      {/* SEARCH BOX */}
+      <form
+      onSubmit={(e) => {
+  e.preventDefault();
+
+  if (!query.trim()) return;
+
+  setFocused(false); // suggestions hide
+  onSubmit(e);       // Navbar ka handleSearch chalega
+}}
+        role="search"
+        className="flex items-center bg-white border border-gray-300 rounded-full pl-6 pr-2 shadow-sm transition-all duration-200 focus-within:border-green-600 focus-within:ring-2 focus-within:ring-green-100"
       >
-        <SearchIcon />
-      </button>
-    </form>
+
+        <input
+          type="search"
+          value={query}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            setFocused(true);
+          }}
+                    onFocus={() => {
+            setFocused(true);
+
+            clearTimeout(hideTimer.current);
+
+            hideTimer.current = setTimeout(() => {
+              setFocused(false);
+            }, 3000);
+          }}
+          placeholder="Search products..."
+          aria-label="Search products"
+          className="flex-1 min-w-0 bg-transparent py-4 text-[15px] text-gray-900 placeholder-gray-400 outline-none"
+        />
+
+        <button
+          type="submit"
+          aria-label="Search"
+          className="flex items-center justify-center w-12 h-12 rounded-full text-green-700 hover:bg-green-50 hover:text-green-800 transition"
+        >
+          <SearchIcon />
+        </button>
+
+      </form>
+
+
+      {/* SUGGESTIONS */}
+      {focused && filteredSuggestions.length > 0 && (
+        <div
+          className="absolute left-0 right-0 top-full mt-2 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xl z-[999]"
+          onMouseDown={(e) => e.preventDefault()}
+        >
+
+          <div className="px-5 py-3 border-b border-gray-100">
+            <p className="text-xs font-bold uppercase tracking-wider text-gray-400">
+              Product Suggestions
+            </p>
+          </div>
+
+
+          {filteredSuggestions.map((product) => (
+
+            <button
+              key={product}
+              type="button"
+              onClick={() => {
+                setQuery(product);
+                setFocused(false);
+              }}
+              className="w-full flex items-center gap-3 px-5 py-3.5 text-left text-gray-700 hover:bg-green-50 hover:text-green-700 transition"
+            >
+
+              <span className="text-green-600">
+                <SearchIcon />
+              </span>
+
+              <span className="font-medium">
+                {product}
+              </span>
+
+            </button>
+
+          ))}
+
+        </div>
+      )}
+
+    </div>
   );
 }
-
 /* =========================================================
    NAVBAR
 ========================================================= */
@@ -113,7 +213,7 @@ function Navbar() {
   const [query, setQuery] = useState("");
 
   /* Cart */
-  const cartCount = 0;
+   const { count: cartCount } = useCart();
 
   const navigate = useNavigate();
 
@@ -148,15 +248,20 @@ function Navbar() {
                 href="tel:+920000000000"
                 className="pr-5 hover:text-green-700 transition"
               >
-                ☎ +92-000-0000000
+                ☎ +92-303-902-0000
               </a>
 
+
               <a
-                href="mailto:info@luckyplastic.com"
-                className="pl-5 border-l border-gray-300 hover:text-green-700 transition"
-              >
-                ✉ info@luckyplastic.com
-              </a>
+              href="https://mail.google.com/mail/?view=cm&fs=1&to=luckyindustries48@gmail.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="pl-5 border-l border-gray-300 hover:text-green-700 transition"
+            >
+              ✉ luckyindustries48@gmail.com
+            </a>
+
+
             </div>
 
             <div className="flex items-center text-xs font-semibold tracking-wide uppercase text-gray-700">

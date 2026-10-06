@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
-
+const catalogueUrl = "Lucky-Plastic-E-Catalogue.pdf";
 
 function Home() {
    const [current, setCurrent] = useState(0);
@@ -94,12 +94,13 @@ function Home() {
           </span>
         </Link>
 
-        <Link
-          to="/contact"
-          className="border border-white/60 hover:bg-white hover:text-gray-900 text-white px-7 py-4 rounded-full font-semibold backdrop-blur-sm transition-all duration-300"
-        >
-          Get a Quote
-        </Link>
+         <a
+              href={catalogueUrl}
+               target="_blank"
+               rel="noopener noreferrer"
+                className="rounded-full border border-green-600 px-7 py-4 font-semibold text-white shadow-xl transition hover:bg-green-600/80">
+                View Catalogue
+               </a>
 
       </div>
 

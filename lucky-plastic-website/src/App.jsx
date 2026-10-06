@@ -7,6 +7,8 @@ import Products from "./components/Products";
 import Manufacture from "./components/Manufacture";
 import Quality from "./components/Quality";
 import Contact from "./components/Contact";
+import Cart from "./components/Cart";
+
 
 const router = createBrowserRouter([
   {
@@ -37,6 +39,11 @@ const router = createBrowserRouter([
         path: "contact",
         element: <Contact />,
       },
+      {
+        path: "cart",
+        element: <Cart />,
+      },
+      
     ],
   },
 ]);

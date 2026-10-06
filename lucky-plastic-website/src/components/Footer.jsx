@@ -454,7 +454,7 @@ function Footer() {
                 transition
               "
             >
-              +92 XXX XXXXXXX
+              +92 303 902 0000
             </a>
 
           </div>
@@ -487,7 +487,8 @@ function Footer() {
                 max-w-sm
               "
             >
-              Lahore, Pakistan
+              3.5 Km, Manga-Raiwind Road,
+              District Lahore, Pakistan.
             </p>
 
           </div>
@@ -540,18 +541,13 @@ function Footer() {
               Email
             </p>
 
-            <a
-              href="mailto:info@luckyplastic.com.pk"
-              className="
-                block
-                mt-3
-                text-sm
-                text-white
-                hover:text-green-200
-                transition
-              "
+                 <a
+              href="https://mail.google.com/mail/?view=cm&fs=1&to=luckyindustries48@gmail.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="pl-5 border-l border-gray-300 hover:text-green-700 transition"
             >
-              info@luckyplastic.com.pk
+              ✉ luckyindustries48@gmail.com
             </a>
 
           </div>
