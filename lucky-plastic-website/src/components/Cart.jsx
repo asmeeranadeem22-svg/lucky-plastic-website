@@ -27,7 +27,7 @@ function Thumb({ item }) {
 }
 
 function Cart() {
-  const { items, increase, decrease, remove, clear, count, total } = useCart();
+  const { items, increase, decrease, remove, clear, count, total, hasUnpriced } = useCart();
 
   return (
     <main className="min-h-[70vh] bg-[#f7f8f6] py-16 lg:py-20">
@@ -70,7 +70,9 @@ function Cart() {
                       </span>
                     )}
                     <p className="mt-2 text-sm text-gray-500">
-                      {item.pack > 0
+                      {item.unitPrice == null
+                        ? `Price on request${item.pack > 0 ? ` · ${item.pack.toLocaleString()} pcs per carton` : ""}`
+                        : item.pack > 0
                         ? `${fmt(item.unitPrice)} per carton (${item.pack.toLocaleString()} pcs)`
                         : `${fmt(item.unitPrice)} per ${item.unit}`}
                     </p>
@@ -97,7 +99,9 @@ function Cart() {
                       </button>
                     </div>
 
-                    <p className="text-xl font-bold text-green-700">{fmt(item.qty * item.unitPrice)}</p>
+                    <p className="text-xl font-bold text-green-700">
+                      {item.unitPrice == null ? "On request" : fmt(item.qty * item.unitPrice)}
+                    </p>
 
                     <button
                       type="button"
@@ -132,8 +136,9 @@ function Cart() {
               </div>
 
               <p className="mt-3 text-xs text-green-100">
-                Quantities are in cartons (rolls for cling film). Final rates are
-                confirmed in the quotation.
+                Quantities are in cartons (rolls for cling film).
+                {hasUnpriced && " The total does not include items marked “Price on request”."}{" "}
+                Final rates are confirmed in the quotation.
               </p>
 
               <Link

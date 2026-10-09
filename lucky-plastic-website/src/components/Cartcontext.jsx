@@ -38,7 +38,7 @@ export function CartProvider({ children }) {
           image: p.image,
           pack: p.pack,
           unit: p.unit,
-          unitPrice: p.pack ? p.price * p.pack : p.price, // price of 1 carton / 1 roll
+          unitPrice: p.price == null ? null : p.pack ? p.price * p.pack : p.price, // price of 1 carton / 1 roll (null = price on request)
           qty: 1,
         },
       ];
@@ -64,7 +64,8 @@ export function CartProvider({ children }) {
       remove,
       clear,
       count: items.reduce((s, i) => s + i.qty, 0),
-      total: items.reduce((s, i) => s + i.qty * i.unitPrice, 0),
+      total: items.reduce((s, i) => s + (i.unitPrice == null ? 0 : i.qty * i.unitPrice), 0),
+      hasUnpriced: items.some((i) => i.unitPrice == null),
     }),
     [items]
   );

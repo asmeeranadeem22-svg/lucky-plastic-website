@@ -136,7 +136,7 @@ function SearchBox({
 
             hideTimer.current = setTimeout(() => {
               setFocused(false);
-            }, 3000);
+            }, 1000);
           }}
           placeholder="Search products..."
           aria-label="Search products"

@@ -21,7 +21,12 @@ const totalProducts = categories.reduce(
 );
 
 // First 4 products of every range -> moving strip
-const featured = categories.flatMap((c) => c.items.slice(0, 4));
+// A few different products from every range (not just the first ones) -> moving strip
+const featured = categories
+  .filter((c) => c.id !== "cling")
+  .flatMap((c) =>
+    [0, 0.2, 0.4, 0.6, 0.8].map((f) => c.items[Math.floor(f * c.items.length)])
+  );
 
 /* =========================================================
    PRODUCT VISUAL
@@ -34,7 +39,7 @@ function Visual({ p, svgClass = "h-24 w-24" }) {
         src={p.image}
         alt={p.name}
         loading="lazy"
-        className="h-full w-full object-contain p-3"
+        className="h-full w-full object-contain p-3 mix-blend-multiply"
       />
     );
   }
@@ -64,7 +69,7 @@ function ProductCard({ p }) {
     <article className="group flex flex-col overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm transition duration-300 hover:-translate-y-2 hover:border-green-200 hover:shadow-xl">
 
       {/* Picture */}
-      <div className="flex h-48 items-center justify-center bg-green-50">
+      <div className="flex h-52 items-center justify-center border-b border-gray-100 bg-[#f4f4f8]">
         <Visual p={p} />
       </div>
 
@@ -85,45 +90,71 @@ function ProductCard({ p }) {
 
         {/* Price */}
         <p className="mt-4">
-          <span className="text-3xl font-bold text-green-700">
-            {fmt(p.price)}
-          </span>
+          {p.price != null ? (
+            <>
+              <span className="text-3xl font-bold text-green-700">
+                {fmt(p.price)}
+              </span>
 
-          <span className="ml-1 text-sm text-gray-500">
-            per {p.unit}
-          </span>
+              <span className="ml-1 text-sm text-gray-500">
+                per {p.unit}
+              </span>
+            </>
+          ) : (
+            <span className="text-lg font-bold text-green-700">
+              Price on request
+            </span>
+          )}
         </p>
 
-        {/* Packing */}
-        {p.pack > 0 && (
-          <div className="mt-5 grid grid-cols-2 gap-3">
+        {/* Details */}
+        <dl className="mt-5 space-y-2 text-sm">
+          {p.size && (
+            <div className="flex justify-between gap-3 border-b border-gray-100 pb-2">
+              <dt className="text-gray-500">Size</dt>
+              <dd className="text-right font-semibold text-gray-900">{p.size}</dd>
+            </div>
+          )}
 
-            <div className="rounded-xl border border-green-100 bg-green-50 p-3">
-              <p className="text-xs text-gray-500">
-                Carton packing
-              </p>
+          {p.material && (
+            <div className="flex justify-between gap-3 border-b border-gray-100 pb-2">
+              <dt className="text-gray-500">Material</dt>
+              <dd className="text-right font-semibold text-gray-900">{p.material}</dd>
+            </div>
+          )}
 
-              <p className="mt-0.5 text-sm font-bold text-gray-900">
+          {p.pack > 0 && (
+            <div className="flex justify-between gap-3 border-b border-gray-100 pb-2">
+              <dt className="text-gray-500">Carton packing</dt>
+              <dd className="text-right font-semibold text-gray-900">
                 {p.pack.toLocaleString()} pcs
-              </p>
+              </dd>
             </div>
+          )}
 
-            <div className="rounded-xl border border-green-100 bg-green-50 p-3">
-              <p className="text-xs text-gray-500">
-                Full carton
-              </p>
+          {p.lidPack > 0 && (
+            <div className="flex justify-between gap-3 border-b border-gray-100 pb-2">
+              <dt className="text-gray-500">Lid packing</dt>
+              <dd className="text-right font-semibold text-gray-900">
+                {p.lidPack.toLocaleString()} pcs
+              </dd>
+            </div>
+          )}
 
-              <p className="mt-0.5 text-sm font-bold text-gray-900">
+          {p.price != null && p.pack > 0 && (
+            <div className="flex justify-between gap-3">
+              <dt className="text-gray-500">Full carton</dt>
+              <dd className="text-right font-bold text-green-700">
                 {fmt(p.price * p.pack)}
-              </p>
+              </dd>
             </div>
+          )}
+        </dl>
 
-          </div>
-        )}
-
-        {/* ADD TO CART */}
+        {/* ADD TO CART (always pinned to the bottom of the card) */}
+        <div className="mt-auto pt-6">
         {inCart ? (
-          <div className="mt-6 flex items-center justify-between rounded-full border border-green-200 bg-green-50 p-1.5">
+          <div className="flex items-center justify-between rounded-full border border-green-200 bg-green-50 p-1.5">
 
             <button
               type="button"
@@ -160,11 +191,12 @@ function ProductCard({ p }) {
           <button
             type="button"
             onClick={() => addItem(p)}
-            className="mt-6 inline-flex items-center justify-center gap-2 rounded-full bg-green-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-green-800"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-green-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-green-800"
           >
             Add to Cart
           </button>
         )}
+        </div>
 
       </div>
     </article>
@@ -298,7 +330,7 @@ function Products() {
               <p className="mt-6 max-w-2xl text-base leading-8 text-white/85 sm:text-lg">
                 Disposable cutlery, food trays and boxes, plates,
                 glasses, bowls, containers and cling film &mdash;
-                with price and carton packing for every item.
+                with picture, size and carton packing for every item.
               </p>
 
               <div className="mt-8 grid max-w-md grid-cols-2 gap-4">
@@ -362,26 +394,31 @@ function Products() {
       ===================================================== */}
 
       {!isSearching && (
-        <section className="overflow-hidden border-b border-green-100 bg-white py-8">
+        <section className="overflow-hidden border-y border-green-100 bg-gradient-to-b from-green-50 to-white py-10">
 
           <div className="relative overflow-hidden">
 
-            <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-24 bg-gradient-to-r from-white to-transparent" />
+            <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-16 bg-gradient-to-r from-green-50 to-transparent" />
 
-            <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-24 bg-gradient-to-l from-white to-transparent" />
+            <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-16 bg-gradient-to-l from-green-50 to-transparent" />
 
             <div className="flex w-max animate-marquee-left hover:[animation-play-state:paused]">
 
               {[...featured, ...featured].map((p, i) => (
                 <div
                   key={`${p.id}-${i}`}
-                  title={p.name}
-                  className="mx-3 flex h-32 w-32 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-green-100 bg-green-50"
+                  className="mx-3 flex w-52 shrink-0 flex-col overflow-hidden rounded-3xl border border-green-100 bg-white shadow-md"
                 >
-                  <Visual
-                    p={p}
-                    svgClass="h-20 w-20"
-                  />
+                  <div className="flex h-44 items-center justify-center bg-[#f4f4f8]">
+                    <Visual
+                      p={p}
+                      svgClass="h-24 w-24"
+                    />
+                  </div>
+
+                  <p className="truncate border-t border-green-100 bg-white px-3 py-2 text-center text-xs font-semibold text-green-800">
+                    {p.name}
+                  </p>
                 </div>
               ))}
 
@@ -567,8 +604,7 @@ function Products() {
                     </h3>
 
                     <p className="mt-1 pl-5 text-sm text-gray-500">
-                      {c.shown.length} items &middot; rates from{" "}
-                      {c.date}
+                      {c.shown.length} items
                     </p>
 
                   </div>
@@ -605,9 +641,9 @@ function Products() {
             )}
 
             <p className="mt-12 text-center text-sm text-gray-500">
-              Prices are per piece (PKR) as per the price lists
-              shown and may change. Please contact us to confirm
-              current rates.
+              Prices are per piece (PKR) and may change. Items marked
+              &ldquo;Price on request&rdquo; can be added to your cart
+              and we will confirm the rate in your quotation.
             </p>
 
           </div>

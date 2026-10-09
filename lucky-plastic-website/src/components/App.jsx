@@ -1,13 +1,13 @@
 import { createBrowserRouter } from "react-router-dom";
 
-import Navbar from "./components/Navbar";
-import Home from "./components/Home";
-import About from "./components/About";
-import Products from "./components/Products";
-import Manufacture from "./components/Manufacture";
-import Quality from "./components/Quality";
-import Contact from "./components/Contact";
-import Cart from "./components/Cart";
+import Navbar from "./Navbar";
+import Home from "./Home";
+import About from "./About";
+import Products from "./Products";
+import Manufacture from "./Manufacture";
+import Quality from "./Quality";
+import Contact from "./Contact";
+import Cart from "./Cart";
 
 
 const router = createBrowserRouter([
